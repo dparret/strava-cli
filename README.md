@@ -365,3 +365,11 @@ Notes: <placeholder>
 Nutrition: <placeholder>
 Recovery: <placeholder>
 ```
+
+You can also compute your fitness, fatigue and form.
+```shell script
+> strava form
+Fitness (ctl):   30
+Fatigue (atl):   44
+Form (tsb):     -14
+```

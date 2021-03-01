@@ -69,7 +69,7 @@ def compute_fitness_fatigue_form(date=datetime.datetime.today().date()):
         tss_table = tss_table.append({'date': st_day, 'tss': tss_entry}, ignore_index=True)
 
     CTL = compute_CTL(tss_table)
-    ATL = compute_ATL(tss_table)
+    ATL = compute_ATL(tss_table[36:42])  # only with the last 7 days
     TSB = CTL - ATL
 
     return CTL, ATL, TSB

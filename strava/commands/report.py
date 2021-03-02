@@ -86,14 +86,21 @@ def get_report(output, current, last, calendar_week, all_days, form, ftp):
                 format_activity(activity_buffer[id].get('activity'), activity_buffer[id].get('met_formatters'))
                 click.echo()
 
+            if form:
+                get_form_with_formatted_date(output, date_monday + datetime.timedelta(days=day))
+                click.echo()
+            click.echo('Notes: <placeholder>\n'
+                       'Recovery: <placeholder>')
+
         elif all_days:
+
             click.echo(f'\n{_DAY_TITLE[day]}')
 
-        if form:
-            get_form_with_formatted_date(output, date_monday + datetime.timedelta(days=day))
-            click.echo()
-        click.echo('Notes: <placeholder>\n'
-                   'Recovery: <placeholder>')
+            if form:
+                get_form_with_formatted_date(output, date_monday + datetime.timedelta(days=day))
+                click.echo()
+            click.echo('Notes: <placeholder>\n'
+                       'Recovery: <placeholder>')
 
 
 def split_activity_and_total(activity_ids, ftp=None):

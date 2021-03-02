@@ -3,7 +3,7 @@ import datetime
 from itertools import compress
 
 from strava import api
-from strava.commands.compute_form import get_form_with_formatted_date
+from strava.utils.form import get_form_with_formatted_date
 from strava.decorators import output_option, login_required, TableFormat, format_result, OutputType
 from strava.commands.activities_weekly import activities_ga_kwargs, weekly_activities
 from strava.formatters import update_activity_name, format_property, apply_formatters, noop_formatter

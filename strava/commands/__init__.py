@@ -15,4 +15,6 @@ from .calendar_week import get_cw
 from .report import get_report
 from .zones_heartrate import get_zones_heartrate
 from .zones_power import get_zones_power
-from .compute_form import get_form, get_form_with_formatted_date
+from .form_get import get_form
+from .form_predict import predict_form
+from .form_generate import predict_generate

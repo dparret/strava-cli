@@ -366,9 +366,10 @@ Nutrition: <placeholder>
 Recovery: <placeholder>
 ```
 
-You can also compute your fitness, fatigue and form.
+There is 3 functions to compute your fitness, fatigue and form. The standard strava form get, and
+additional command to help planed and predict upcoming fitness, fatigue and form values.
 ```shell script
-> strava form
+> strava form get
 Fitness (ctl):   30
 Fatigue (atl):   44
 Form (tsb):     -14

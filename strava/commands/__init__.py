@@ -18,3 +18,4 @@ from .zones_power import get_zones_power
 from .form_get import get_form
 from .form_predict import predict_form
 from .form_generate import predict_generate
+from .form_weekly import get_form_week

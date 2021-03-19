@@ -11,30 +11,48 @@ from strava.utils.streams_computations import normalized_power, intensity_factor
 
 
 def ride_detail(activity, from_, to, ftp=None):
-    if activity.get('device_watts'):
-        sensors = ['time', 'watts', 'cadence', 'heartrate']
-    else:
-        sensors = ['time', 'cadence', 'heartrate']
-
-    # Gets the streams needed.
-    stream_by_keys = [to_dataframe(api.get_streams(activity.get('id'), key=key)) for key in sensors]
-
-    # Try to merge the streams.
-    try:
-        stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_by_keys)
-    except KeyError:
-        try:
-            stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_by_keys)
-        except KeyError:
-            click.echo('Enable to merge the streams on distance or time.')
-
-    stream = stream.drop_duplicates(subset='time')
-    stream = filter_stream_by_from_to(stream, from_, to)
+    stream = _ride_get_stream(activity=activity, from_=from_, to=to)
 
     if activity.get('device_watts') and ftp != 0:
         metrics, formatters = _ride_detail_with_power(stream, ftp)
     else:
         metrics, formatters = _ride_detail_without_power(stream)
+    return metrics, formatters
+
+
+def ride_count_matches(activity, from_, to, watts_threshold, min_time_threshold):
+    stream = _ride_get_stream(activity=activity, from_=from_, to=to)
+    stream['prev_watts'] = stream['watts'].shift(1)
+
+    for i, v in stream.iterrows():
+        if stream.index[0] == i:
+            prev_v = stream.iloc[0]
+            cum = []
+            matches = 0
+            time_cum = 0
+        time_delta = v.time - prev_v.time
+        if v.watts >= watts_threshold > prev_v.watts:
+            matches = matches + 1
+        if v.watts >= watts_threshold and prev_v.watts >= watts_threshold:
+            time_cum = time_cum + time_delta
+        if v.watts < watts_threshold <= prev_v.watts or i == stream.tail(1).index[0] and v.watts > watts_threshold:
+            cum = cum + [time_cum]
+            time_cum = 0
+        prev_v = v
+
+    cum.sort(reverse=True)
+    cum = [s for s in cum if s > min_time_threshold]
+    len(cum)
+
+    metrics = dict({
+        '#matches': len(cum),
+        'time': ' '.join([str(c) for c in cum]),
+    })
+
+    formatters = {
+        '#matches': noop_formatter,
+        'time': noop_formatter,
+    }
     return metrics, formatters
 
 
@@ -46,6 +64,29 @@ def get_athlete_ftp():
     except:
         click.echo(f'The FTP has to be defined in your strava profile.')
         raise
+
+
+def _ride_get_stream(activity, from_, to,):
+    if activity.get('device_watts'):
+        sensors = ['time', 'watts', 'cadence', 'heartrate']
+    else:
+        sensors = ['time', 'cadence', 'heartrate']
+
+    # Gets the streams needed.
+    stream_by_keys = [to_dataframe(api.get_streams(activity.get('id'), key=key)) for key in sensors]
+
+    # Try to merge the streams.
+    try:
+        stream_to_merge = [df.drop_duplicates('distance') for df in stream_by_keys]
+        stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_to_merge)
+    except KeyError:
+        try:
+            stream_to_merge = [df.drop_duplicates('time') for df in stream_by_keys]
+            stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_to_merge)
+        except KeyError:
+            click.echo('Enable to merge the streams on distance or time.')
+
+    return filter_stream_by_from_to(stream, from_, to)
 
 
 def _ride_detail_without_power(stream):

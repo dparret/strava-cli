@@ -8,3 +8,4 @@ from .streams_run import run_detail
 from .streams_workout import workout_detail
 from .streams_other import other_detail
 from .form import get_form_with_formatted_date
+from .streams_ride import ride_count_matches

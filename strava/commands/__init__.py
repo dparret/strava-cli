@@ -19,3 +19,4 @@ from .form_get import get_form
 from .form_predict import predict_form
 from .form_generate import predict_generate
 from .form_weekly import get_form_week
+from .matches import count_matches

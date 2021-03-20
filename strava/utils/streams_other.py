@@ -20,15 +20,14 @@ def other_detail(activity, from_, to):
     if all([s in flat_sensors_available for s in sensors]):
         # Try to merge the streams.
         try:
-            stream_to_merge = [df.drop_duplicates('distance') for df in stream_by_keys]
-            stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_to_merge)
+            stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_by_keys)
         except KeyError:
             try:
-                stream_to_merge = [df.drop_duplicates('time') for df in stream_by_keys]
-                stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_to_merge)
+                stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_by_keys)
             except KeyError:
                 click.echo('Enable to merge the streams on distance or time.')
 
+        stream = stream.drop_duplicates(subset='time')
         stream = filter_stream_by_from_to(stream, from_, to)
 
         # Could had more cases here:

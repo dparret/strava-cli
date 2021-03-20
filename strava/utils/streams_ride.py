@@ -42,7 +42,6 @@ def ride_count_matches(activity, from_, to, watts_threshold, min_time_threshold)
 
     cum.sort(reverse=True)
     cum = [s for s in cum if s > min_time_threshold]
-    len(cum)
 
     metrics = dict({
         '#matches': len(cum),
@@ -77,15 +76,14 @@ def _ride_get_stream(activity, from_, to,):
 
     # Try to merge the streams.
     try:
-        stream_to_merge = [df.drop_duplicates('distance') for df in stream_by_keys]
-        stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_to_merge)
+        stream = reduce(lambda left, right: pd.merge(left, right, on='distance'), stream_by_keys)
     except KeyError:
         try:
-            stream_to_merge = [df.drop_duplicates('time') for df in stream_by_keys]
-            stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_to_merge)
+            stream = reduce(lambda left, right: pd.merge(left, right, on='time'), stream_by_keys)
         except KeyError:
             click.echo('Enable to merge the streams on distance or time.')
 
+    stream = stream.drop_duplicates(subset='time')
     return filter_stream_by_from_to(stream, from_, to)
 
 

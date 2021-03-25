@@ -11,6 +11,10 @@ from strava.utils.streams_computations import normalized_power, intensity_factor
 
 
 def ride_detail(activity, from_, to, ftp=None):
+    if activity.get('manual'):
+        metrics, formatters = _ride_detail_manual_entry()
+        return metrics, formatters
+
     stream = _ride_get_stream(activity=activity, from_=from_, to=to)
 
     if activity.get('device_watts') and ftp != 0:
@@ -88,15 +92,27 @@ def _ride_get_stream(activity, from_, to,):
 
 
 def _ride_detail_without_power(stream):
-    # Computes metrics.
-    metrics = dict({
-        'tss': compute_hrtss(stream),
-        'average_cadence': average(stream['cadence'][stream['cadence'] != 0]),
-    })
-    formatters = {
-        'tss': noop_formatter,
-        'average_cadence': format_cadence,
-    }
+    if 'heartrate' not in stream.columns:
+        return _ride_detail_manual_entry()
+
+    if 'cadence' in stream.columns:
+        # Computes metrics.
+        metrics = dict({
+            'tss': compute_hrtss(stream),
+            'average_cadence': average(stream['cadence'][stream['cadence'] != 0]),
+        })
+        formatters = {
+            'tss': noop_formatter,
+            'average_cadence': format_cadence,
+        }
+    else:
+        # Computes metrics.
+        metrics = dict({
+            'tss': compute_hrtss(stream),
+        })
+        formatters = {
+            'tss': noop_formatter,
+        }
     return metrics, formatters
 
 
@@ -134,3 +150,6 @@ def _ride_detail_with_power(stream, ftp=None):
         'ftp': format_power,
     }
     return metrics, formatters
+
+def _ride_detail_manual_entry():
+    return dict({}), {}

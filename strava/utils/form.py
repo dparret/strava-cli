@@ -116,7 +116,7 @@ def get_tss_entry(act_id):
 
 def compute_daily_tss(tss_entries):
     grouped_entries = [list(g) for _, g in itertools.groupby(tss_entries, lambda x: x.keys())]
-    daily_tss = [{[k for k, v in g[0].items()][0]: sum([(v) for g1 in g for k, v in g1.items()])} for g in grouped_entries]
+    daily_tss = [{[k for k, v in g[0].items()][0]: sum([(v) for g1 in g for k, v in g1.items() if v is not None])} for g in grouped_entries]
 
     dict_tss = {}
     for dt in daily_tss:

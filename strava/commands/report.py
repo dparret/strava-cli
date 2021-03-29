@@ -119,8 +119,15 @@ def split_activity_and_total(activity_ids, ftp=None):
         }
 
         # Adapts the totals.
-        activity_total['total_tss'] += tmp_activity.get('tss')
-        activity_total['total_time'] += tmp_activity.get('moving_time')
+        try:
+            activity_total['total_tss'] += tmp_activity.get('tss')
+        except:
+            pass
+
+        try:
+            activity_total['total_time'] += tmp_activity.get('moving_time')
+        except:
+            pass
 
     # Return the buffer and the total.
     return activity_buffer, activity_total
